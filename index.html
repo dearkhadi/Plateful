@@ -13,8 +13,16 @@
   :root{
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
-    --tg-safe-top: var(--safe-top);
-    --tg-safe-bottom: var(--safe-bottom);
+    --tg-safe-top: max(
+      env(safe-area-inset-top, 0px),
+      var(--tg-safe-area-inset-top, 0px),
+      var(--tg-content-safe-area-inset-top, 0px)
+    );
+    --tg-safe-bottom: max(
+      env(safe-area-inset-bottom, 0px),
+      var(--tg-safe-area-inset-bottom, 0px),
+      var(--tg-content-safe-area-inset-bottom, 0px)
+    );
   }
   :root, :root[data-theme="light"]{
     --paper:#FAF6F0;
@@ -97,14 +105,24 @@
     position:sticky;
     top:0;
     background:var(--card);
-    padding:calc(12px + var(--tg-safe-top, var(--safe-top))) 16px 12px;
-    border-bottom:none;
+    padding:calc(10px + var(--tg-safe-top, var(--safe-top))) 16px 10px;
+    border-bottom:1px solid var(--line);
     display:flex;
     align-items:center;
     justify-content:space-between;
-    gap:8px;
+    gap:10px;
     box-shadow:0 1px 4px rgba(60,45,30,0.04);
     z-index:50;
+    box-sizing:border-box;
+    width:100%;
+  }
+  .topbar-left{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    overflow:hidden;
   }
   .topbar .eyebrow{
     font-size:11px;
@@ -112,8 +130,67 @@
     text-transform:uppercase;
     color:var(--ink-soft);
     font-weight:600;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    line-height:1.2;
+    max-width:100%;
   }
-  .topbar h1{font-size:20px; color:var(--ink); font-weight:700;}
+  .topbar h1{
+    font-size:19px;
+    color:var(--ink);
+    font-weight:700;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    line-height:1.25;
+    margin:0;
+    max-width:100%;
+  }
+  .topbar-right{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex-shrink:0;
+  }
+  #tg-user-pill{
+    display:none;
+    align-items:center;
+    gap:6px;
+    background:var(--accent-soft);
+    padding:4px 8px 4px 5px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+    color:var(--accent-ink);
+    text-decoration:none;
+    max-width:115px;
+    flex-shrink:1;
+    min-width:0;
+    transition:background .15s ease;
+  }
+  #tg-user-pill:active{
+    background:var(--line);
+  }
+  #tg-user-pill .tg-name{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    max-width:65px;
+    display:inline-block;
+  }
+  @media (max-width:375px){
+    #tg-user-pill{
+      padding:4px 6px;
+      max-width:34px;
+    }
+    #tg-user-pill .tg-name{
+      display:none;
+    }
+    .topbar h1{
+      font-size:17px;
+    }
+  }
   .theme-btn{
     border:none;
     background:var(--paper);
@@ -123,6 +200,7 @@
     display:flex;align-items:center;justify-content:center;
     cursor:pointer;
     flex:none;
+    flex-shrink:0;
   }
   main{flex:1; padding:12px 16px calc(112px + var(--tg-safe-bottom, var(--safe-bottom)));}
   .card{
@@ -318,12 +396,12 @@
 <body>
 <div id="app-shell">
   <div class="topbar">
-    <div>
+    <div class="topbar-left">
       <div class="eyebrow" id="topbar-eyebrow">Khadi</div>
       <h1 id="topbar-title">Сегодня</h1>
     </div>
-    <div style="display:flex; align-items:center; gap:8px;">
-      <a href="#profile" id="tg-user-pill" style="display:none; align-items:center; gap:6px; background:var(--accent-soft); padding:4px 10px 4px 6px; border-radius:999px; font-size:12px; font-weight:600; color:var(--accent-ink); text-decoration:none;"></a>
+    <div class="topbar-right">
+      <a href="#profile" id="tg-user-pill" title="Профиль в Telegram"></a>
       <button class="theme-btn" id="theme-toggle" aria-label="Тема" title="Переключить тему"></button>
     </div>
   </div>
@@ -422,7 +500,7 @@ function initTelegramWebApp(){
     tg.ready();
     tg.expand();
     var isDark = state.theme === 'dark';
-    if(tg.setHeaderColor) tg.setHeaderColor(isDark ? '#24201D' : '#FAF6F0');
+    if(tg.setHeaderColor) tg.setHeaderColor(isDark ? '#24201D' : '#FFFFFF');
     if(tg.setBackgroundColor) tg.setBackgroundColor(isDark ? '#1A1715' : '#FAF6F0');
 
     function updateTelegramSafeAreas(){
@@ -443,7 +521,7 @@ function initTelegramWebApp(){
 
       var isMobile = (tg.platform === 'ios' || tg.platform === 'android' || /iphone|ipad|ipod|android/i.test(navigator.userAgent));
       if(top === 0 && isMobile){
-        top = (tg.platform === 'ios' || /iphone|ipad|ipod/i.test(navigator.userAgent)) ? 28 : 16;
+        top = (tg.platform === 'ios' || /iphone|ipad|ipod/i.test(navigator.userAgent)) ? 44 : 24;
       }
 
       if(top > 0){
@@ -454,6 +532,8 @@ function initTelegramWebApp(){
       }
     }
     updateTelegramSafeAreas();
+    setTimeout(updateTelegramSafeAreas, 100);
+    setTimeout(updateTelegramSafeAreas, 400);
     if(tg.onEvent){
       tg.onEvent('safeAreaChanged', updateTelegramSafeAreas);
       tg.onEvent('contentSafeAreaChanged', updateTelegramSafeAreas);
@@ -464,9 +544,9 @@ function initTelegramWebApp(){
     var pill = document.getElementById('tg-user-pill');
     if(user && pill){
       var avatar = user.photo_url
-        ? '<img src="'+escapeHtml(user.photo_url)+'" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">'
-        : '<span style="width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;">✈️</span>';
-      pill.innerHTML = avatar + '<span>'+escapeHtml(user.first_name || user.username || 'Профиль')+'</span>';
+        ? '<img src="'+escapeHtml(user.photo_url)+'" style="width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0;">'
+        : '<span style="width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">✈️</span>';
+      pill.innerHTML = avatar + '<span class="tg-name">'+escapeHtml(user.first_name || user.username || 'Профиль')+'</span>';
       pill.style.display = 'inline-flex';
     }
   } catch(e){}
@@ -534,7 +614,7 @@ function applyTheme(){
   if(window.Telegram && window.Telegram.WebApp){
     try{
       var isDark = state.theme === 'dark';
-      if(window.Telegram.WebApp.setHeaderColor) window.Telegram.WebApp.setHeaderColor(isDark ? '#24201D' : '#FAF6F0');
+      if(window.Telegram.WebApp.setHeaderColor) window.Telegram.WebApp.setHeaderColor(isDark ? '#24201D' : '#FFFFFF');
       if(window.Telegram.WebApp.setBackgroundColor) window.Telegram.WebApp.setBackgroundColor(isDark ? '#1A1715' : '#FAF6F0');
     }catch(e){}
   }
@@ -613,7 +693,7 @@ function route(){
   }
   if(TABS.some(function(t){ return t.key===hash; })) lastTab = hash;
   document.getElementById('topbar-title').textContent = TITLES[hash] || 'Khadi';
-  document.getElementById('topbar-eyebrow').textContent = state.onboarded ? 'Khadi · меню на неделю' : 'Khadi';
+  document.getElementById('topbar-eyebrow').textContent = state.onboarded ? 'Khadi · меню' : 'Khadi';
   renderTabbar(hash.indexOf('dish-')===0 ? lastTab : hash);
   var app = document.getElementById('app');
   if(hash === 'onboarding') renderOnboarding(app);
@@ -2237,6 +2317,7 @@ function renderDishDetail(app, dishId){
   var d = DISHES[dishId];
   if(!d){ renderPlaceholder(app, 'Блюдо не найдено', 'Возможно, ссылка устарела.'); return; }
   document.getElementById('topbar-title').textContent = d.name;
+  document.getElementById('topbar-eyebrow').textContent = d.isSalad ? 'Салат · Рецепт' : 'Рецепт';
   var per = dishPerServing(d);
   var flags = dishFlags(d);
   var isFav = state.favorites.indexOf(d.id)>-1;
