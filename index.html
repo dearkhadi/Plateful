@@ -653,7 +653,7 @@ function renderOnboarding(app){
       if(!restored){ toast('Код не распознан — проверьте, что скопировали полностью'); return; }
       state = restored;
       state.onboarded = true;
-      if(!state.currentMenu || !state.currentMenu.days || !state.currentMenu.days[0].slots || !state.currentMenu.days[0].slots.shaker || !state.currentMenu.days[0].slots.snack || !state.currentMenu.days[0].slots.dinner || state.currentMenu.days[0].slots.dinner.dishId !== 'm_chicken_rice_broccoli' || !state.currentMenu.days[0].slots.dinner.sideDishId){
+      if(!state.currentMenu || !state.currentMenu.days || !state.currentMenu.days[0].slots || !state.currentMenu.days[0].slots.shaker || !state.currentMenu.days[0].slots.snack || !state.currentMenu.days[0].slots.lunch || !state.currentMenu.days[0].slots.lunch.sideDishId || !state.currentMenu.days[0].slots.dinner || state.currentMenu.days[0].slots.dinner.dishId !== 'm_chicken_rice_broccoli' || !state.currentMenu.days[0].slots.dinner.sideDishId){
         buildMenu(false);
       }
       saveState();
@@ -930,7 +930,7 @@ function renderProfile(app){
     var restored = parseImportCode(code);
     if(!restored){ toast('Код не распознан — проверьте, что он скопирован полностью'); profileImportArmed=false; importBtn.textContent='Восстановить из кода'; return; }
     state = restored;
-    if(!state.currentMenu || !state.currentMenu.days || !state.currentMenu.days[0].slots || !state.currentMenu.days[0].slots.shaker || !state.currentMenu.days[0].slots.snack || !state.currentMenu.days[0].slots.dinner || state.currentMenu.days[0].slots.dinner.dishId !== 'm_chicken_rice_broccoli' || !state.currentMenu.days[0].slots.dinner.sideDishId){
+    if(!state.currentMenu || !state.currentMenu.days || !state.currentMenu.days[0].slots || !state.currentMenu.days[0].slots.shaker || !state.currentMenu.days[0].slots.snack || !state.currentMenu.days[0].slots.lunch || !state.currentMenu.days[0].slots.lunch.sideDishId || !state.currentMenu.days[0].slots.dinner || state.currentMenu.days[0].slots.dinner.dishId !== 'm_chicken_rice_broccoli' || !state.currentMenu.days[0].slots.dinner.sideDishId){
       buildMenu(false);
     }
     saveState(); applyTheme();
@@ -1462,7 +1462,7 @@ function pickWeighted(list, biasAwayFromLegume){
 }
 
 var CURATED_WEEK = [
-  { dow:'Понедельник', slots:{ breakfast:'b_overnight_oats_yogurt', lunch:'m_chicken_shawarma_bowl', shaker:'s_gainer_protein_shake', snack:'s_chicken_cheese_roll', dinner:'m_chicken_rice_broccoli' }, dinnerSide:'s_evening_vegetable_salad' },
+  { dow:'Понедельник', slots:{ breakfast:'b_overnight_oats_yogurt', lunch:'m_chicken_shawarma_bowl', shaker:'s_gainer_protein_shake', snack:'s_chicken_cheese_roll', dinner:'m_chicken_rice_broccoli' }, lunchSide:'s_evening_vegetable_salad', dinnerSide:'s_evening_vegetable_salad' },
   { dow:'Вторник',     slots:{ breakfast:'b_spinach_cherry_omelet', lunch:'m_chicken_rice_broccoli', shaker:'s_gainer_protein_shake', snack:'s_tuna_egg_sandwich', dinner:'m_chicken_pasta_mushrooms' }, lunchSide:'s_evening_vegetable_salad', dinnerSide:'s_evening_vegetable_salad' },
   { dow:'Среда',       slots:{ breakfast:'b_quick_cheesecakes', lunch:'m_chicken_pasta_mushrooms', shaker:'s_gainer_protein_shake', snack:'s_homemade_fruit_marmalade', dinner:'m_beef_mushrooms_buckwheat' }, lunchSide:'s_evening_vegetable_salad', dinnerSide:'s_evening_vegetable_salad' },
   { dow:'Четверг',     slots:{ breakfast:'b_avocado_cheese_toasts', lunch:'m_beef_mushrooms_buckwheat', shaker:'s_gainer_protein_shake', snack:'s_tuna_egg_roll', dinner:'m_chicken_noodle_soup' }, lunchSide:'s_evening_vegetable_salad', dinnerSide:'s_evening_vegetable_salad' },
@@ -2172,7 +2172,7 @@ function renderPrep(app){
   app.innerHTML = html;
 }
 
-if(state.onboarded && (!state.currentMenu || !state.currentMenu.days || !state.currentMenu.days[0].slots || !state.currentMenu.days[0].slots.shaker || !state.currentMenu.days[0].slots.snack || !state.currentMenu.days[0].slots.dinner || state.currentMenu.days[0].slots.dinner.dishId !== 'm_chicken_rice_broccoli' || !state.currentMenu.days[0].slots.dinner.sideDishId)){
+if(state.onboarded && (!state.currentMenu || !state.currentMenu.days || !state.currentMenu.days[0].slots || !state.currentMenu.days[0].slots.shaker || !state.currentMenu.days[0].slots.snack || !state.currentMenu.days[0].slots.lunch || !state.currentMenu.days[0].slots.lunch.sideDishId || !state.currentMenu.days[0].slots.dinner || state.currentMenu.days[0].slots.dinner.dishId !== 'm_chicken_rice_broccoli' || !state.currentMenu.days[0].slots.dinner.sideDishId)){
   buildMenu(false);
 }
 route();
