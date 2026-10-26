@@ -653,7 +653,7 @@ function renderOnboarding(app){
       if(!restored){ toast('Код не распознан — проверьте, что скопировали полностью'); return; }
       state = restored;
       state.onboarded = true;
-      if(!state.currentMenu || !state.currentMenu.days || !state.currentMenu.days[0].slots || !state.currentMenu.days[0].slots.shaker || !state.currentMenu.days[0].slots.snack || !state.currentMenu.days[0].slots.dinner || state.currentMenu.days[0].slots.dinner.dishId !== 'm_chicken_rice_broccoli'){
+      if(!state.currentMenu || !state.currentMenu.days || !state.currentMenu.days[0].slots || !state.currentMenu.days[0].slots.shaker || !state.currentMenu.days[0].slots.snack || !state.currentMenu.days[0].slots.dinner || state.currentMenu.days[0].slots.dinner.dishId !== 'm_chicken_rice_broccoli' || !state.currentMenu.days[0].slots.dinner.sideDishId){
         buildMenu(false);
       }
       saveState();
@@ -930,7 +930,7 @@ function renderProfile(app){
     var restored = parseImportCode(code);
     if(!restored){ toast('Код не распознан — проверьте, что он скопирован полностью'); profileImportArmed=false; importBtn.textContent='Восстановить из кода'; return; }
     state = restored;
-    if(!state.currentMenu || !state.currentMenu.days || !state.currentMenu.days[0].slots || !state.currentMenu.days[0].slots.shaker || !state.currentMenu.days[0].slots.snack || !state.currentMenu.days[0].slots.dinner || state.currentMenu.days[0].slots.dinner.dishId !== 'm_chicken_rice_broccoli'){
+    if(!state.currentMenu || !state.currentMenu.days || !state.currentMenu.days[0].slots || !state.currentMenu.days[0].slots.shaker || !state.currentMenu.days[0].slots.snack || !state.currentMenu.days[0].slots.dinner || state.currentMenu.days[0].slots.dinner.dishId !== 'm_chicken_rice_broccoli' || !state.currentMenu.days[0].slots.dinner.sideDishId){
       buildMenu(false);
     }
     saveState(); applyTheme();
@@ -1462,13 +1462,13 @@ function pickWeighted(list, biasAwayFromLegume){
 }
 
 var CURATED_WEEK = [
-  { dow:'Понедельник', slots:{ breakfast:'b_overnight_oats_yogurt', lunch:'m_chicken_shawarma_bowl', shaker:'s_gainer_protein_shake', snack:'s_chicken_cheese_roll', dinner:'m_chicken_rice_broccoli' } },
-  { dow:'Вторник',     slots:{ breakfast:'b_spinach_cherry_omelet', lunch:'m_chicken_rice_broccoli', shaker:'s_gainer_protein_shake', snack:'s_tuna_egg_sandwich', dinner:'m_chicken_pasta_mushrooms' } },
-  { dow:'Среда',       slots:{ breakfast:'b_quick_cheesecakes', lunch:'m_chicken_pasta_mushrooms', shaker:'s_gainer_protein_shake', snack:'s_homemade_fruit_marmalade', dinner:'m_beef_mushrooms_buckwheat' } },
-  { dow:'Четверг',     slots:{ breakfast:'b_avocado_cheese_toasts', lunch:'m_beef_mushrooms_buckwheat', shaker:'s_gainer_protein_shake', snack:'s_tuna_egg_roll', dinner:'m_chicken_noodle_soup' } },
-  { dow:'Пятница',     slots:{ breakfast:'b_banana_pancakes', lunch:'m_chicken_noodle_soup', shaker:'s_gainer_protein_shake', snack:'s_tuna_egg_sandwich', dinner:'m_chicken_wok_noodles' } },
-  { dow:'Суббота',     slots:{ breakfast:'b_rice_porridge_cottage', lunch:'m_chicken_wok_noodles', shaker:'s_gainer_protein_shake', snack:'s_chicken_cheese_roll', dinner:'m_turkey_bolognese_pasta' } },
-  { dow:'Воскресенье', slots:{ breakfast:'b_shakshuka_feta', lunch:'m_turkey_bolognese_pasta', shaker:'s_gainer_protein_shake', snack:'s_herring_shuba_yogurt', dinner:'m_chicken_pilaf_chickpeas' } }
+  { dow:'Понедельник', slots:{ breakfast:'b_overnight_oats_yogurt', lunch:'m_chicken_shawarma_bowl', shaker:'s_gainer_protein_shake', snack:'s_chicken_cheese_roll', dinner:'m_chicken_rice_broccoli' }, dinnerSide:'s_evening_vegetable_salad' },
+  { dow:'Вторник',     slots:{ breakfast:'b_spinach_cherry_omelet', lunch:'m_chicken_rice_broccoli', shaker:'s_gainer_protein_shake', snack:'s_tuna_egg_sandwich', dinner:'m_chicken_pasta_mushrooms' }, lunchSide:'s_evening_vegetable_salad', dinnerSide:'s_evening_vegetable_salad' },
+  { dow:'Среда',       slots:{ breakfast:'b_quick_cheesecakes', lunch:'m_chicken_pasta_mushrooms', shaker:'s_gainer_protein_shake', snack:'s_homemade_fruit_marmalade', dinner:'m_beef_mushrooms_buckwheat' }, lunchSide:'s_evening_vegetable_salad', dinnerSide:'s_evening_vegetable_salad' },
+  { dow:'Четверг',     slots:{ breakfast:'b_avocado_cheese_toasts', lunch:'m_beef_mushrooms_buckwheat', shaker:'s_gainer_protein_shake', snack:'s_tuna_egg_roll', dinner:'m_chicken_noodle_soup' }, lunchSide:'s_evening_vegetable_salad', dinnerSide:'s_evening_vegetable_salad' },
+  { dow:'Пятница',     slots:{ breakfast:'b_banana_pancakes', lunch:'m_chicken_noodle_soup', shaker:'s_gainer_protein_shake', snack:'s_tuna_egg_sandwich', dinner:'m_chicken_wok_noodles' }, lunchSide:'s_evening_vegetable_salad', dinnerSide:'s_evening_vegetable_salad' },
+  { dow:'Суббота',     slots:{ breakfast:'b_rice_porridge_cottage', lunch:'m_chicken_wok_noodles', shaker:'s_gainer_protein_shake', snack:'s_chicken_cheese_roll', dinner:'m_turkey_bolognese_pasta' }, lunchSide:'s_evening_vegetable_salad', dinnerSide:'s_evening_vegetable_salad' },
+  { dow:'Воскресенье', slots:{ breakfast:'b_shakshuka_feta', lunch:'m_turkey_bolognese_pasta', shaker:'s_gainer_protein_shake', snack:'s_herring_shuba_yogurt', dinner:'m_chicken_pilaf_chickpeas' }, lunchSide:'s_evening_vegetable_salad', dinnerSide:'s_evening_vegetable_salad' }
 ];
 
 function generateWeek(){
@@ -1484,7 +1484,16 @@ function generateWeek(){
       var d = DISHES[dishId];
       var servings = headcount;
       var scale = servings / d.servingsBase;
-      slots[slotKey] = { dishId: d.id, servings: servings, scale: scale };
+      var slotObj = { dishId: d.id, servings: servings, scale: scale };
+      if(slotKey==='dinner' && cDay.dinnerSide && DISHES[cDay.dinnerSide]){
+        slotObj.sideDishId = cDay.dinnerSide;
+        slotObj.sideScale = headcount / (DISHES[cDay.dinnerSide].servingsBase || 2);
+      }
+      if(slotKey==='lunch' && cDay.lunchSide && DISHES[cDay.lunchSide]){
+        slotObj.sideDishId = cDay.lunchSide;
+        slotObj.sideScale = headcount / (DISHES[cDay.lunchSide].servingsBase || 2);
+      }
+      slots[slotKey] = slotObj;
     });
     days.push({ dow: cDay.dow, slots: slots });
   });
@@ -1544,8 +1553,15 @@ function dayTotals(day){
   SLOT_ORDER.forEach(function(k){
     var s = day.slots[k];
     if(!s) return;
-    var t = dishTotals(DISHES[s.dishId]);
-    NUTRIENT_KEYS.forEach(function(k2){ sum[k2]+= (t[k2]||0)*s.scale; });
+    if(s.dishId && DISHES[s.dishId]){
+      var t = dishTotals(DISHES[s.dishId]);
+      NUTRIENT_KEYS.forEach(function(k2){ sum[k2]+= (t[k2]||0)*s.scale; });
+    }
+    if(s.sideDishId && DISHES[s.sideDishId]){
+      var t2 = dishTotals(DISHES[s.sideDishId]);
+      var scale2 = s.sideScale || 1;
+      NUTRIENT_KEYS.forEach(function(k2){ sum[k2]+= (t2[k2]||0)*scale2; });
+    }
   });
   return sum;
 }
@@ -1602,17 +1618,27 @@ function slotCardHtml(dayIndex, slotKey, slot){
   var d = DISHES[slot.dishId];
   var isShake = slotKey === 'shaker' || (d && (d.id.indexOf('shake')>-1 || d.id.indexOf('gainer')>-1));
   var typeLabel = isShake ? 'Шейкер' : SLOT_LABEL[slotKey];
+  var sideHtml = '';
+  if(slot.sideDishId && DISHES[slot.sideDishId]){
+    var sd = DISHES[slot.sideDishId];
+    sideHtml =
+      '<div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); display:flex; align-items:center; justify-content:space-between; gap:6px;">'+
+        '<span style="font-size:13px; color:var(--ink); font-weight:600;">🥗 + '+escapeHtml(sd.name)+'</span>'+
+        '<a class="icon-btn" href="#dish-'+sd.id+'" title="Открыть рецепт салата" style="width:28px; height:28px; border-radius:8px; text-decoration:none;" aria-label="Открыть рецепт салата"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px; height:14px;"><path d="M9 6 15 12 9 18"/></svg></a>'+
+      '</div>';
+  }
   return (
-    '<div class="slot-card">'+
+    '<div class="slot-card" style="align-items:flex-start;">'+
       catBadgeHtml(slotKey, false, d ? d.id : null)+
       '<div class="meta">'+
         '<div class="slot-type">'+typeLabel+'</div>'+
-        '<div class="slot-name">'+escapeHtml(d.name)+'</div>'+
-        '<div class="slot-time">'+d.totalTime+' мин'+(d.activeTime<d.totalTime ? ' (активных '+d.activeTime+')' : '')+' · '+slot.servings+' порц.'+(d.canPrepAhead?' · можно заранее':'')+'</div>'+
+        '<div class="slot-name">'+escapeHtml(d ? d.name : 'Блюдо')+'</div>'+
+        '<div class="slot-time">'+(d ? d.totalTime+' мин'+(d.activeTime<d.totalTime ? ' (активных '+d.activeTime+')' : '')+' · '+slot.servings+' порц.'+(d.canPrepAhead?' · можно заранее':'') : '')+'</div>'+
+        sideHtml+
       '</div>'+
       '<div class="slot-actions">'+
         '<button class="icon-btn" data-replace="'+dayIndex+':'+slotKey+'" title="Заменить" aria-label="Заменить блюдо"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 2.5 21 6l-4 3.5M21 6H8a5 5 0 0 0-5 5v1M7 21.5 3 18l4-3.5M3 18h13a5 5 0 0 0 5-5v-1"/></svg></button>'+
-        '<a class="icon-btn" href="#dish-'+d.id+'" title="Открыть рецепт" aria-label="Открыть рецепт" style="text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6 15 12 9 18"/></svg></a>'+
+        (d ? '<a class="icon-btn" href="#dish-'+d.id+'" title="Открыть рецепт" aria-label="Открыть рецепт" style="text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6 15 12 9 18"/></svg></a>' : '')+
       '</div>'+
     '</div>'
   );
@@ -1972,18 +1998,30 @@ var CAT_ORDER = ['Овощи и зелень','Фрукты','Мясо, птиц
 
 function computeShoppingList(){
   var totals = {};
+  if(!state.currentMenu) return {};
   state.currentMenu.days.forEach(function(day){
     SLOT_ORDER.forEach(function(k){
       var s = day.slots[k];
       if(!s) return;
-      DISHES[s.dishId].ing.forEach(function(it){
-        totals[it.id] = (totals[it.id]||0) + it.g*s.scale;
-      });
+      var d = DISHES[s.dishId];
+      if(d){
+        d.ing.forEach(function(it){
+          totals[it.id] = (totals[it.id]||0) + it.g*s.scale;
+        });
+      }
+      if(s.sideDishId && DISHES[s.sideDishId]){
+        var sd = DISHES[s.sideDishId];
+        var sScale = s.sideScale || 1;
+        sd.ing.forEach(function(it){
+          totals[it.id] = (totals[it.id]||0) + it.g*sScale;
+        });
+      }
     });
   });
   var groups = {};
   Object.keys(totals).forEach(function(id){
     var ing = INGREDIENTS[id];
+    if(!ing) return;
     (groups[ing.cat] = groups[ing.cat] || []).push({ id:id, name:ing.name, amount:totals[id] });
   });
   Object.keys(groups).forEach(function(cat){ groups[cat].sort(function(a,b){ return a.name.localeCompare(b.name,'ru'); }); });
@@ -2073,8 +2111,14 @@ function collectPrepInfo(menu){
       var s = day.slots[k];
       if(!s) return;
       var d = DISHES[s.dishId];
-      if(d.canPrepAhead){ (prepMap[d.id] = prepMap[d.id] || []).push(i); }
-      if(!isWeekend && (k==='lunch'||k==='dinner') && d.totalTime<=20){ quickIds[d.id]=true; }
+      if(d){
+        if(d.canPrepAhead){ (prepMap[d.id] = prepMap[d.id] || []).push(i); }
+        if(!isWeekend && (k==='lunch'||k==='dinner') && d.totalTime<=20){ quickIds[d.id]=true; }
+      }
+      if(s.sideDishId && DISHES[s.sideDishId]){
+        var sd = DISHES[s.sideDishId];
+        if(sd.canPrepAhead){ (prepMap[sd.id] = prepMap[sd.id] || []).push(i); }
+      }
     });
   });
   return { prepMap:prepMap, quickIds:Object.keys(quickIds) };
@@ -2116,8 +2160,10 @@ function renderPrep(app){
   html += '<div class="card stack"><h2>Расписание на неделю</h2>';
   html += menu.days.map(function(day, i){
     var lines = SLOT_ORDER.filter(function(k){ return state.meals[k] && day.slots[k]; }).map(function(k){
-      var d = DISHES[day.slots[k].dishId];
-      return '<div class="sd-line"><span>'+SLOT_LABEL[k]+': '+escapeHtml(d.name)+'</span><span>'+d.totalTime+' мин</span></div>';
+      var s = day.slots[k];
+      var d = DISHES[s.dishId];
+      var sideText = (s.sideDishId && DISHES[s.sideDishId]) ? ' + '+escapeHtml(DISHES[s.sideDishId].name) : '';
+      return '<div class="sd-line"><span>'+SLOT_LABEL[k]+': '+escapeHtml(d ? d.name : '')+sideText+'</span><span>'+(d?d.totalTime:0)+' мин</span></div>';
     }).join('');
     return '<div class="schedule-day"><div class="sd-head"><span>'+WEEKDAYS_RU[i]+'</span>'+(i===state.prepDayIndex?'<span class="pill">заготовки</span>':'')+'</div>'+lines+'</div>';
   }).join('');
@@ -2126,7 +2172,7 @@ function renderPrep(app){
   app.innerHTML = html;
 }
 
-if(state.onboarded && (!state.currentMenu || !state.currentMenu.days || !state.currentMenu.days[0].slots || !state.currentMenu.days[0].slots.shaker || !state.currentMenu.days[0].slots.snack || !state.currentMenu.days[0].slots.dinner || state.currentMenu.days[0].slots.dinner.dishId !== 'm_chicken_rice_broccoli')){
+if(state.onboarded && (!state.currentMenu || !state.currentMenu.days || !state.currentMenu.days[0].slots || !state.currentMenu.days[0].slots.shaker || !state.currentMenu.days[0].slots.snack || !state.currentMenu.days[0].slots.dinner || state.currentMenu.days[0].slots.dinner.dishId !== 'm_chicken_rice_broccoli' || !state.currentMenu.days[0].slots.dinner.sideDishId)){
   buildMenu(false);
 }
 route();
