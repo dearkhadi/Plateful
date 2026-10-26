@@ -653,6 +653,9 @@ function renderOnboarding(app){
       if(!restored){ toast('Код не распознан — проверьте, что скопировали полностью'); return; }
       state = restored;
       state.onboarded = true;
+      if(!state.currentMenu || !state.currentMenu.days || !state.currentMenu.days[0].slots || !state.currentMenu.days[0].slots.shaker || !state.currentMenu.days[0].slots.snack || !state.currentMenu.days[0].slots.dinner || state.currentMenu.days[0].slots.dinner.dishId !== 'm_chicken_rice_broccoli'){
+        buildMenu(false);
+      }
       saveState();
       applyTheme();
       toast('Профиль успешно загружен!');
@@ -927,6 +930,9 @@ function renderProfile(app){
     var restored = parseImportCode(code);
     if(!restored){ toast('Код не распознан — проверьте, что он скопирован полностью'); profileImportArmed=false; importBtn.textContent='Восстановить из кода'; return; }
     state = restored;
+    if(!state.currentMenu || !state.currentMenu.days || !state.currentMenu.days[0].slots || !state.currentMenu.days[0].slots.shaker || !state.currentMenu.days[0].slots.snack || !state.currentMenu.days[0].slots.dinner || state.currentMenu.days[0].slots.dinner.dishId !== 'm_chicken_rice_broccoli'){
+      buildMenu(false);
+    }
     saveState(); applyTheme();
     toast('Данные восстановлены');
     location.hash = 'today';
