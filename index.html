@@ -520,10 +520,28 @@ function renderTabbar(active){
 
 var TITLES = { today:'Сегодня', week:'Неделя', shopping:'Покупки', prep:'Заготовки', library:'Блюда', profile:'Я', onboarding:'Знакомство' };
 
+var KNOWN_ROUTES = ['onboarding', 'today', 'week', 'shopping', 'prep', 'library', 'profile'];
+
+function getRouteHash(){
+  var raw = (location.hash || '').replace(/^#/,'');
+  if(!raw || raw.indexOf('tgWebAppData') !== -1 || raw.indexOf('tgWebApp') !== -1){
+    return state.onboarded ? 'today' : 'onboarding';
+  }
+  var clean = raw.split('?')[0].split('&')[0];
+  if(!clean) return state.onboarded ? 'today' : 'onboarding';
+  if(KNOWN_ROUTES.indexOf(clean) !== -1 || clean.indexOf('dish-') === 0){
+    return clean;
+  }
+  return state.onboarded ? 'today' : 'onboarding';
+}
+
 var lastTab = 'today';
 function route(){
-  var hash = location.hash.replace('#','') || (state.onboarded ? 'today' : 'onboarding');
-  if(!state.onboarded && hash !== 'onboarding'){ location.hash = 'onboarding'; return; }
+  var hash = getRouteHash();
+  if(!state.onboarded && hash !== 'onboarding'){
+    hash = 'onboarding';
+    try{ location.hash = 'onboarding'; }catch(e){}
+  }
   if(TABS.some(function(t){ return t.key===hash; })) lastTab = hash;
   document.getElementById('topbar-title').textContent = TITLES[hash] || 'Khadi';
   document.getElementById('topbar-eyebrow').textContent = state.onboarded ? 'Khadi · меню на неделю' : 'Khadi';
@@ -537,7 +555,7 @@ function route(){
   else if(hash === 'prep') renderPrep(app);
   else if(hash === 'library') renderLibrary(app);
   else if(hash === 'profile') renderProfile(app);
-  else renderPlaceholder(app, 'Khadi', 'Экран не найден.');
+  else renderToday(app);
   window.scrollTo(0,0);
 }
 window.addEventListener('hashchange', route);
