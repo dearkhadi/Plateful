@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Khadi</title>
 <meta name="description" content="Автосборка меню на неделю, список покупок и КБЖУ — без лишних раздумий.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,6 +10,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
+  :root{
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --tg-safe-top: var(--safe-top);
+    --tg-safe-bottom: var(--safe-bottom);
+  }
   :root, :root[data-theme="light"]{
     --paper:#FAF6F0;
     --card:#FFFFFF;
@@ -89,16 +95,16 @@
   }
   .topbar{
     position:sticky;
-    top:env(safe-area-inset-top,0px);
+    top:0;
     background:var(--card);
-    padding:14px 16px;
+    padding:calc(12px + var(--tg-safe-top, var(--safe-top))) 16px 12px;
     border-bottom:none;
     display:flex;
     align-items:center;
     justify-content:space-between;
     gap:8px;
     box-shadow:0 1px 4px rgba(60,45,30,0.04);
-    z-index:5;
+    z-index:50;
   }
   .topbar .eyebrow{
     font-size:11px;
@@ -118,7 +124,7 @@
     cursor:pointer;
     flex:none;
   }
-  main{flex:1; padding:0 16px 112px;}
+  main{flex:1; padding:12px 16px calc(112px + var(--tg-safe-bottom, var(--safe-bottom)));}
   .card{
     background:var(--card);
     border:none;
@@ -190,7 +196,7 @@
   .hairline{height:1px; background:var(--line); border:0; margin:4px 0;}
   nav.tabbar{
     position:fixed;
-    left:16px; right:16px; bottom:calc(10px + env(safe-area-inset-bottom,0px));
+    left:16px; right:16px; bottom:calc(10px + var(--tg-safe-bottom, var(--safe-bottom)));
     max-width:448px; margin:0 auto;
     background:var(--card);
     border:none;
@@ -199,7 +205,7 @@
     padding:6px;
     display:flex;
     justify-content:space-between;
-    z-index:10;
+    z-index:60;
   }
   nav.tabbar button{
     background:none; border:none; cursor:pointer;
@@ -216,9 +222,9 @@
     align-items:center;
   }
   .toast{
-    position:fixed; left:50%; transform:translateX(-50%); bottom:96px;
+    position:fixed; left:50%; transform:translateX(-50%); bottom:calc(96px + var(--tg-safe-bottom, var(--safe-bottom)));
     background:var(--ink); color:var(--paper); padding:10px 16px; border-radius:14px;
-    font-size:13px; font-weight:600; z-index:50; box-shadow:0 4px 16px rgba(0,0,0,0.12);
+    font-size:13px; font-weight:600; z-index:70; box-shadow:0 4px 16px rgba(0,0,0,0.12);
   }
   @media (max-width:420px){ .grid2{grid-template-columns:1fr;} }
 
@@ -290,7 +296,7 @@
   .modal-backdrop.open{ opacity:1; pointer-events:auto; }
   .modal-sheet{
     background:var(--card); width:100%; max-width:480px;
-    border-radius:24px 24px 0 0; padding:20px 16px calc(24px + env(safe-area-inset-bottom,0px));
+    border-radius:24px 24px 0 0; padding:20px 16px calc(24px + var(--tg-safe-bottom, var(--safe-bottom)));
     max-height:85vh; overflow-y:auto; transform:translateY(100%); transition:transform .25s cubic-bezier(0.16,1,0.3,1);
     box-shadow:0 -8px 30px rgba(0,0,0,0.15);
     display:flex; flex-direction:column; gap:12px;
@@ -418,6 +424,41 @@ function initTelegramWebApp(){
     var isDark = state.theme === 'dark';
     if(tg.setHeaderColor) tg.setHeaderColor(isDark ? '#24201D' : '#FAF6F0');
     if(tg.setBackgroundColor) tg.setBackgroundColor(isDark ? '#1A1715' : '#FAF6F0');
+
+    function updateTelegramSafeAreas(){
+      var top = 0;
+      var bottom = 0;
+      if(tg.contentSafeAreaInset && typeof tg.contentSafeAreaInset.top === 'number'){
+        top = Math.max(top, tg.contentSafeAreaInset.top);
+      }
+      if(tg.safeAreaInset && typeof tg.safeAreaInset.top === 'number'){
+        top = Math.max(top, tg.safeAreaInset.top);
+      }
+      if(tg.contentSafeAreaInset && typeof tg.contentSafeAreaInset.bottom === 'number'){
+        bottom = Math.max(bottom, tg.contentSafeAreaInset.bottom);
+      }
+      if(tg.safeAreaInset && typeof tg.safeAreaInset.bottom === 'number'){
+        bottom = Math.max(bottom, tg.safeAreaInset.bottom);
+      }
+
+      var isMobile = (tg.platform === 'ios' || tg.platform === 'android' || /iphone|ipad|ipod|android/i.test(navigator.userAgent));
+      if(top === 0 && isMobile){
+        top = (tg.platform === 'ios' || /iphone|ipad|ipod/i.test(navigator.userAgent)) ? 28 : 16;
+      }
+
+      if(top > 0){
+        document.documentElement.style.setProperty('--tg-safe-top', top + 'px');
+      }
+      if(bottom > 0){
+        document.documentElement.style.setProperty('--tg-safe-bottom', bottom + 'px');
+      }
+    }
+    updateTelegramSafeAreas();
+    if(tg.onEvent){
+      tg.onEvent('safeAreaChanged', updateTelegramSafeAreas);
+      tg.onEvent('contentSafeAreaChanged', updateTelegramSafeAreas);
+      tg.onEvent('viewportChanged', updateTelegramSafeAreas);
+    }
 
     var user = tg.initDataUnsafe && tg.initDataUnsafe.user;
     var pill = document.getElementById('tg-user-pill');
