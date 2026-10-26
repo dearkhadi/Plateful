@@ -9,6 +9,37 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+  (function(){
+    try {
+      var tg = window.Telegram && window.Telegram.WebApp;
+      var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (tg && tg.platform === 'ios');
+      var isMobile = isIOS || /android/i.test(navigator.userAgent) || (tg && tg.platform === 'android');
+      if(tg && isMobile){
+        var isDynamicIsland = isIOS && (window.screen.height >= 852 || window.screen.width >= 852);
+        var defaultTop = isIOS ? (isDynamicIsland ? 98 : 88) : 56;
+        var top = 0;
+        if(tg.contentSafeAreaInset && tg.contentSafeAreaInset.top > 0){
+          top = Math.max(top, tg.contentSafeAreaInset.top);
+        }
+        if(tg.safeAreaInset && tg.safeAreaInset.top > 0){
+          top = Math.max(top, tg.safeAreaInset.top + (isIOS ? 38 : 24));
+        }
+        if(top < defaultTop) top = defaultTop;
+        document.documentElement.style.setProperty('--tg-safe-top', top + 'px');
+
+        var bottom = isIOS ? 34 : 16;
+        if(tg.contentSafeAreaInset && tg.contentSafeAreaInset.bottom > 0){
+          bottom = Math.max(bottom, tg.contentSafeAreaInset.bottom);
+        }
+        if(tg.safeAreaInset && tg.safeAreaInset.bottom > 0){
+          bottom = Math.max(bottom, tg.safeAreaInset.bottom);
+        }
+        document.documentElement.style.setProperty('--tg-safe-bottom', bottom + 'px');
+      }
+    } catch(e){}
+  })();
+</script>
 <style>
   :root{
     --safe-top: env(safe-area-inset-top, 0px);
@@ -506,22 +537,26 @@ function initTelegramWebApp(){
     function updateTelegramSafeAreas(){
       var top = 0;
       var bottom = 0;
-      if(tg.contentSafeAreaInset && typeof tg.contentSafeAreaInset.top === 'number'){
+      if(tg.contentSafeAreaInset && typeof tg.contentSafeAreaInset.top === 'number' && tg.contentSafeAreaInset.top > 0){
         top = Math.max(top, tg.contentSafeAreaInset.top);
       }
-      if(tg.safeAreaInset && typeof tg.safeAreaInset.top === 'number'){
-        top = Math.max(top, tg.safeAreaInset.top);
+      if(tg.safeAreaInset && typeof tg.safeAreaInset.top === 'number' && tg.safeAreaInset.top > 0){
+        top = Math.max(top, tg.safeAreaInset.top + 38);
       }
-      if(tg.contentSafeAreaInset && typeof tg.contentSafeAreaInset.bottom === 'number'){
+      if(tg.contentSafeAreaInset && typeof tg.contentSafeAreaInset.bottom === 'number' && tg.contentSafeAreaInset.bottom > 0){
         bottom = Math.max(bottom, tg.contentSafeAreaInset.bottom);
       }
-      if(tg.safeAreaInset && typeof tg.safeAreaInset.bottom === 'number'){
+      if(tg.safeAreaInset && typeof tg.safeAreaInset.bottom === 'number' && tg.safeAreaInset.bottom > 0){
         bottom = Math.max(bottom, tg.safeAreaInset.bottom);
       }
 
-      var isMobile = (tg.platform === 'ios' || tg.platform === 'android' || /iphone|ipad|ipod|android/i.test(navigator.userAgent));
-      if(top === 0 && isMobile){
-        top = (tg.platform === 'ios' || /iphone|ipad|ipod/i.test(navigator.userAgent)) ? 44 : 24;
+      var isIOS = (tg.platform === 'ios' || /iphone|ipad|ipod/i.test(navigator.userAgent));
+      var isMobile = isIOS || (tg.platform === 'android' || /android/i.test(navigator.userAgent));
+      if(isMobile){
+        var isDynamicIsland = isIOS && (window.screen.height >= 852 || window.screen.width >= 852);
+        var minTop = isIOS ? (isDynamicIsland ? 98 : 88) : 56;
+        if(top < minTop) top = minTop;
+        if(bottom < (isIOS ? 34 : 16)) bottom = (isIOS ? 34 : 16);
       }
 
       if(top > 0){
@@ -626,6 +661,7 @@ document.getElementById('theme-toggle').addEventListener('click', function(){
   toast(state.theme === 'dark' ? 'Тема: тёмная' : 'Тема: светло-бежевая');
 });
 applyTheme();
+initTelegramWebApp();
 
 /* ---------- toast ---------- */
 var toastTimer = null;
